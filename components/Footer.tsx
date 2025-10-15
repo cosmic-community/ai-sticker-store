@@ -55,15 +55,22 @@ export default function Footer() {
                   Collections
                 </Link>
               </li>
-              <li>
-                <Link 
-                  href="/reviews" 
-                  className="text-secondary-400 hover:text-white transition-colors duration-200"
-                >
-                  Customer Reviews
-                </Link>
-              </li>
-            </ul>
+                <li>
+                  <Link 
+                    href="/reviews" 
+                    className="text-secondary-400 hover:text-white transition-colors duration-200"
+                  >
+                    Customer Reviews
+                  </Link>
+                </li>
+                <li>
+                  <Link 
+                    href="/about" 
+                    className="text-secondary-400 hover:text-white transition-colors duration-200"
+                  >
+                    About Us
+                  </Link>
+                </li>
           </div>
 
           {/* Collections */}

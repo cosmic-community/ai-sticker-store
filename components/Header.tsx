@@ -33,12 +33,18 @@ export default function Header() {
             >
               Collections
             </Link>
-            <Link 
-              href="/reviews" 
-              className="text-secondary-700 hover:text-primary-600 font-medium transition-colors duration-200"
-            >
-              Reviews
-            </Link>
+              <Link 
+                href="/reviews" 
+                className="text-secondary-700 hover:text-primary-600 font-medium transition-colors duration-200"
+              >
+                Reviews
+              </Link>
+              <Link 
+                href="/about" 
+                className="text-secondary-700 hover:text-primary-600 font-medium transition-colors duration-200"
+              >
+                About
+              </Link>
           </nav>
 
           {/* Mobile Menu Button */}
@@ -81,6 +87,13 @@ export default function Header() {
                 onClick={() => setIsMenuOpen(false)}
               >
                 Reviews
+              </Link>
+              <Link 
+                href="/about" 
+                className="text-secondary-700 hover:text-primary-600 font-medium transition-colors duration-200 px-2 py-1"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                About
               </Link>
             </nav>
           </div>
