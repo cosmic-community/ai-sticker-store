@@ -71,7 +71,8 @@ export default function Footer() {
                     About Us
                   </Link>
                 </li>
-          </div>
+              </ul>
+            </div>
 
           {/* Collections */}
           <div>
