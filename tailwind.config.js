@@ -28,6 +28,7 @@ module.exports = {
           800: '#1e293b',
           900: '#0f172a',
         },
+        border: '#e2e8f0',
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
