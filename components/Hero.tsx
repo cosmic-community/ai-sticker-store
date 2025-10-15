@@ -64,7 +64,7 @@ export default function Hero() {
       </div>
 
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black opacity-10 pointer-events-none"></div>
     </section>
   )
 }
