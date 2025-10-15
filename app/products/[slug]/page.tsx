@@ -51,8 +51,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <div className="space-y-4">
             <div className="aspect-square overflow-hidden rounded-2xl bg-secondary-50">
               <img
-                src={`${firstImage.imgix_url}?w=800&h=800&fit=crop&auto=format,compress`}
-                src={`${sticker.metadata.product_images[0].imgix_url}?w=800&h=800&fit=crop&auto=format,compress`}
+                  src={`${firstImage.imgix_url}?w=800&h=800&fit=crop&auto=format,compress`}
                 alt={sticker.metadata.name}
                 width="400"
                 height="400"
