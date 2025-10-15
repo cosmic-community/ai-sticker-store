@@ -32,6 +32,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound()
   }
 
+  // Safety check for product images
+  if (!sticker.metadata.product_images || sticker.metadata.product_images.length === 0) {
+    notFound()
+  }
+
   const collection = sticker.metadata.collections?.[0]
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + parseInt(review.metadata.rating.key), 0) / reviews.length
