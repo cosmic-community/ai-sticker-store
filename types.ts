@@ -88,6 +88,43 @@ export interface CosmicResponse<T> {
   skip?: number;
 }
 
+// AI Image Generation types
+export interface AIImageResponse {
+  media: {
+    id: string;
+    name: string;
+    original_name: string;
+    size: number;
+    folder?: string;
+    type: string;
+    bucket: string;
+    created_at: string;
+    url: string;
+    imgix_url: string;
+    alt_text?: string;
+    metadata?: Record<string, any>;
+  };
+  revised_prompt: string;
+}
+
+// Create sticker request type
+export interface CreateStickerRequest {
+  name: string;
+  prompt: string;
+  description: string;
+  price: number;
+  tags: string;
+  materialType: 'vinyl' | 'holographic' | 'paper' | 'transparent';
+  waterproof: boolean;
+}
+
+// Create sticker response type
+export interface CreateStickerResponse {
+  success: boolean;
+  sticker?: Sticker;
+  error?: string;
+}
+
 // Material types for filtering
 export type MaterialType = 'vinyl' | 'paper' | 'holographic' | 'transparent';
 

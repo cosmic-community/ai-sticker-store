@@ -1,5 +1,5 @@
 import { createBucketClient } from '@cosmicjs/sdk'
-import type { Sticker, Collection, Review, CosmicResponse } from '@/types'
+import type { Sticker, Collection, Review, CosmicResponse, CreateStickerRequest } from '@/types'
 
 export const cosmic = createBucketClient({
   bucketSlug: process.env.COSMIC_BUCKET_SLUG as string,
@@ -183,4 +183,55 @@ export async function searchStickersByTag(tag: string): Promise<Sticker[]> {
   return allStickers.filter(sticker => 
     sticker.metadata.tags?.toLowerCase().includes(tag.toLowerCase())
   );
+}
+
+// Create a new sticker with AI-generated image
+export async function createSticker(data: CreateStickerRequest, imageUrl: string, imageImgixUrl: string): Promise<Sticker> {
+  try {
+    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    
+    const response = await cosmic.objects.insertOne({
+      title: data.name,
+      type: 'stickers',
+      slug: slug,
+      metadata: {
+        name: data.name,
+        description: data.description,
+        ai_prompt: data.prompt,
+        product_images: [
+          {
+            url: imageUrl,
+            imgix_url: imageImgixUrl
+          }
+        ],
+        price: data.price,
+        size_options: [
+          {
+            size: 'Small (2")',
+            price: data.price - 1
+          },
+          {
+            size: 'Medium (4")',
+            price: data.price + 1
+          },
+          {
+            size: 'Large (6")',
+            price: data.price + 3
+          }
+        ],
+        tags: data.tags,
+        material_type: {
+          key: data.materialType,
+          value: data.materialType.charAt(0).toUpperCase() + data.materialType.slice(1)
+        },
+        waterproof: data.waterproof,
+        in_stock: true,
+        featured_product: false
+      }
+    });
+    
+    return response.object as Sticker;
+  } catch (error) {
+    throw new Error('Failed to create sticker');
+  }
 }
