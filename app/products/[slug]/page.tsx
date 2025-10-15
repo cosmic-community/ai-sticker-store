@@ -38,7 +38,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
   }
 
   const collection = sticker.metadata.collections?.[0]
-  const firstImage = sticker.metadata.product_images[0] // Safe to access after the notFound() check above
+  const firstImage = sticker.metadata.product_images[0]
+  
+  // Additional safety check for TypeScript
+  if (!firstImage) {
+    notFound()
+  }
+  
   const averageRating = reviews.length > 0 
     ? reviews.reduce((sum, review) => sum + parseInt(review.metadata.rating.key), 0) / reviews.length
     : 0
