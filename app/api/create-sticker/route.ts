@@ -23,25 +23,50 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate AI image using Cosmic AI
-    const imageResponse = await cosmic.ai.generateImage({
-      prompt: `${body.prompt}, sticker design, high quality, detailed illustration, white background, professional product photo`,
-      folder: 'ai-generated-stickers',
-      alt_text: `AI-generated sticker: ${body.name}`
-    }) as AIImageResponse
-
-    if (!imageResponse.media || !imageResponse.media.imgix_url) {
+    let imageResponse: AIImageResponse
+    try {
+      imageResponse = await cosmic.ai.generateImage({
+        prompt: `${body.prompt}, sticker design, high quality, detailed illustration, white background, professional product photo`,
+        folder: 'ai-generated-stickers',
+        alt_text: `AI-generated sticker: ${body.name}`
+      }) as AIImageResponse
+    } catch (aiError) {
+      console.error('AI image generation error:', aiError)
       return NextResponse.json(
-        { success: false, error: 'Failed to generate image' },
+        { 
+          success: false, 
+          error: aiError instanceof Error ? `AI generation failed: ${aiError.message}` : 'Failed to generate AI image. Please try again.' 
+        },
+        { status: 500 }
+      )
+    }
+
+    if (!imageResponse?.media?.imgix_url) {
+      console.error('Invalid AI response:', imageResponse)
+      return NextResponse.json(
+        { success: false, error: 'AI image generation returned invalid response' },
         { status: 500 }
       )
     }
 
     // Create sticker object in Cosmic
-    const sticker = await createSticker(
-      body,
-      imageResponse.media.url,
-      imageResponse.media.imgix_url
-    )
+    let sticker
+    try {
+      sticker = await createSticker(
+        body,
+        imageResponse.media.url,
+        imageResponse.media.imgix_url
+      )
+    } catch (createError) {
+      console.error('Sticker creation error:', createError)
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: createError instanceof Error ? `Failed to save sticker: ${createError.message}` : 'Failed to create sticker in database' 
+        },
+        { status: 500 }
+      )
+    }
 
     const response: CreateStickerResponse = {
       success: true,

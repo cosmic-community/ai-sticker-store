@@ -232,6 +232,7 @@ export async function createSticker(data: CreateStickerRequest, imageUrl: string
     
     return response.object as Sticker;
   } catch (error) {
-    throw new Error('Failed to create sticker');
+    console.error('Error in createSticker:', error)
+    throw new Error(error instanceof Error ? error.message : 'Failed to create sticker in Cosmic');
   }
 }
