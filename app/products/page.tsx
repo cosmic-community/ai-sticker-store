@@ -1,5 +1,6 @@
 import { getStickers } from '@/lib/cosmic'
 import ProductGrid from '@/components/ProductGrid'
+import type { Sticker } from '@/types'
 
 export const metadata = {
   title: 'All Stickers - AI Sticker Store',
@@ -7,8 +8,8 @@ export const metadata = {
 }
 
 export default async function ProductsPage() {
-  // Changed: Added error handling to prevent build failures
-  let stickers = []
+  // Changed: Added explicit type annotation to prevent TS7034 error
+  let stickers: Sticker[] = []
   
   try {
     stickers = await getStickers()

@@ -3,13 +3,14 @@ import Hero from '@/components/Hero'
 import ProductGrid from '@/components/ProductGrid'
 import CollectionGrid from '@/components/CollectionGrid'
 import ReviewSection from '@/components/ReviewSection'
+import type { Sticker, Collection, Review } from '@/types'
 
 export default async function HomePage() {
   // Fetch all data for homepage with error handling
-  // Changed: Added try-catch to prevent build failures when Cosmic data is unavailable
-  let featuredStickers = []
-  let featuredCollections = []
-  let recentReviews = []
+  // Changed: Added explicit type annotations to prevent TS7034 errors
+  let featuredStickers: Sticker[] = []
+  let featuredCollections: Collection[] = []
+  let recentReviews: Review[] = []
 
   try {
     [featuredStickers, featuredCollections, recentReviews] = await Promise.all([

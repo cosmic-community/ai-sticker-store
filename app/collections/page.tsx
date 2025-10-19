@@ -1,5 +1,6 @@
 import { getCollections } from '@/lib/cosmic'
 import CollectionGrid from '@/components/CollectionGrid'
+import type { Collection } from '@/types'
 
 export const metadata = {
   title: 'Collections - AI Sticker Store',
@@ -7,8 +8,8 @@ export const metadata = {
 }
 
 export default async function CollectionsPage() {
-  // Changed: Added error handling to prevent build failures
-  let collections = []
+  // Changed: Added explicit type annotation to prevent TS7034 error
+  let collections: Collection[] = []
   
   try {
     collections = await getCollections()
