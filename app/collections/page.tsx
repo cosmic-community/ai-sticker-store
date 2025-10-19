@@ -7,7 +7,15 @@ export const metadata = {
 }
 
 export default async function CollectionsPage() {
-  const collections = await getCollections()
+  // Changed: Added error handling to prevent build failures
+  let collections = []
+  
+  try {
+    collections = await getCollections()
+  } catch (error) {
+    console.error('Error fetching collections:', error)
+    // Continue rendering with empty array
+  }
 
   return (
     <div className="min-h-screen py-12 px-4">

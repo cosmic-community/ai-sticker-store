@@ -5,12 +5,22 @@ import CollectionGrid from '@/components/CollectionGrid'
 import ReviewSection from '@/components/ReviewSection'
 
 export default async function HomePage() {
-  // Fetch all data for homepage
-  const [featuredStickers, featuredCollections, recentReviews] = await Promise.all([
-    getFeaturedStickers(),
-    getFeaturedCollections(),
-    getRecentReviews(6)
-  ])
+  // Fetch all data for homepage with error handling
+  // Changed: Added try-catch to prevent build failures when Cosmic data is unavailable
+  let featuredStickers = []
+  let featuredCollections = []
+  let recentReviews = []
+
+  try {
+    [featuredStickers, featuredCollections, recentReviews] = await Promise.all([
+      getFeaturedStickers(),
+      getFeaturedCollections(),
+      getRecentReviews(6)
+    ])
+  } catch (error) {
+    console.error('Error fetching homepage data:', error)
+    // Continue rendering with empty arrays - page will show fallback UI
+  }
 
   return (
     <div>

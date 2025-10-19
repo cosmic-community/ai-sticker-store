@@ -7,7 +7,15 @@ export const metadata = {
 }
 
 export default async function ProductsPage() {
-  const stickers = await getStickers()
+  // Changed: Added error handling to prevent build failures
+  let stickers = []
+  
+  try {
+    stickers = await getStickers()
+  } catch (error) {
+    console.error('Error fetching stickers:', error)
+    // Continue rendering with empty array
+  }
 
   return (
     <div className="min-h-screen py-12 px-4">
