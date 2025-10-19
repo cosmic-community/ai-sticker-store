@@ -186,11 +186,20 @@ export async function searchStickersByTag(tag: string): Promise<Sticker[]> {
 }
 
 // Create a new sticker with AI-generated image
-export async function createSticker(data: CreateStickerRequest, imageUrl: string, imageImgixUrl: string): Promise<Sticker> {
+export async function createSticker(data: CreateStickerRequest, imageFileName: string, imageImgixUrl: string): Promise<Sticker> {
   try {
-    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    console.log('🔧 createSticker called with:', {
+      stickerName: data.name,
+      imageFileName,
+      imgixUrl: imageImgixUrl,
+      price: data.price,
+      materialType: data.materialType
+    })
     
-    const response = await cosmic.objects.insertOne({
+    const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    console.log('📝 Generated slug:', slug)
+    
+    const payload = {
       title: data.name,
       type: 'stickers',
       slug: slug,
@@ -198,12 +207,7 @@ export async function createSticker(data: CreateStickerRequest, imageUrl: string
         name: data.name,
         description: data.description,
         ai_prompt: data.prompt,
-        product_images: [
-          {
-            url: imageUrl,
-            imgix_url: imageImgixUrl
-          }
-        ],
+        product_images: imageFileName, // Changed: Using just the filename
         price: data.price,
         size_options: [
           {
@@ -228,11 +232,31 @@ export async function createSticker(data: CreateStickerRequest, imageUrl: string
         in_stock: true,
         featured_product: false
       }
-    });
+    };
+    
+    console.log('📦 Payload being sent to Cosmic:', JSON.stringify(payload, null, 2))
+    
+    const response = await cosmic.objects.insertOne(payload);
+    
+    console.log('✅ Cosmic insertOne successful')
+    console.log('Response object:', {
+      id: response.object?.id,
+      slug: response.object?.slug,
+      title: response.object?.title
+    })
     
     return response.object as Sticker;
   } catch (error) {
-    console.error('Error in createSticker:', error)
+    console.error('❌ Error in createSticker function:', error)
+    console.error('Error type:', error instanceof Error ? error.constructor.name : typeof error)
+    console.error('Error message:', error instanceof Error ? error.message : String(error))
+    
+    // Log additional error properties if available
+    if (error && typeof error === 'object') {
+      console.error('Error object keys:', Object.keys(error))
+      console.error('Full error object:', JSON.stringify(error, null, 2))
+    }
+    
     throw new Error(error instanceof Error ? error.message : 'Failed to create sticker in Cosmic');
   }
 }
