@@ -10,11 +10,15 @@ export const metadata = {
 export default async function ProductsPage() {
   // Changed: Added explicit type annotation to prevent TS7034 error
   let stickers: Sticker[] = []
+  let errorMessage: string | null = null
   
   try {
+    console.log('🔄 Products page: Fetching stickers...')
     stickers = await getStickers()
+    console.log('✅ Products page: Stickers fetched:', stickers.length)
   } catch (error) {
-    console.error('Error fetching stickers:', error)
+    console.error('❌ Products page: Error fetching stickers:', error)
+    errorMessage = error instanceof Error ? error.message : 'Failed to load stickers'
     // Continue rendering with empty array
   }
 
@@ -29,6 +33,18 @@ export default async function ProductsPage() {
           <p className="text-lg text-secondary-600 max-w-2xl mx-auto">
             Discover our complete collection of AI-generated stickers. Each design is unique and perfect for personalizing your favorite items.
           </p>
+          
+          {/* Error message display */}
+          {errorMessage && (
+            <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded-lg max-w-2xl mx-auto">
+              <p className="text-red-600 text-sm">
+                ⚠️ <strong>Error loading stickers:</strong> {errorMessage}
+              </p>
+              <p className="text-red-500 text-xs mt-2">
+                The Cosmic CMS API may be experiencing issues. Please check the console for details or try again later.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Product Grid */}

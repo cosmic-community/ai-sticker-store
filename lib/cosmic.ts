@@ -16,34 +16,71 @@ function hasStatus(error: unknown): error is { status: number } {
 // Get all stickers with collections
 export async function getStickers(): Promise<Sticker[]> {
   try {
+    console.log('🔍 Fetching stickers from Cosmic...')
+    console.log('Environment:', {
+      bucketSlug: process.env.COSMIC_BUCKET_SLUG,
+      hasReadKey: !!process.env.COSMIC_READ_KEY,
+      apiEnvironment: 'staging'
+    })
+    
     const response = await cosmic.objects
       .find({ type: 'stickers' })
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
     
+    console.log('✅ Stickers fetched successfully:', {
+      count: response.objects?.length || 0,
+      total: response.total
+    })
+    
+    if (!response.objects || response.objects.length === 0) {
+      console.warn('⚠️ No stickers found in response')
+      return []
+    }
+    
     return (response.objects as Sticker[]).sort((a, b) => {
       // Sort featured products first, then by price
-      if (a.metadata.featured_product && !b.metadata.featured_product) return -1;
-      if (!a.metadata.featured_product && b.metadata.featured_product) return 1;
-      return a.metadata.price - b.metadata.price;
+      if (a.metadata?.featured_product && !b.metadata?.featured_product) return -1;
+      if (!a.metadata?.featured_product && b.metadata?.featured_product) return 1;
+      return (a.metadata?.price || 0) - (b.metadata?.price || 0);
     });
   } catch (error) {
+    console.error('❌ Error fetching stickers:', error)
+    console.error('Error details:', {
+      type: typeof error,
+      hasStatus: hasStatus(error),
+      status: hasStatus(error) ? error.status : 'N/A',
+      message: error instanceof Error ? error.message : String(error)
+    })
+    
     if (hasStatus(error) && error.status === 404) {
+      console.log('ℹ️ 404 error - no stickers found, returning empty array')
       return [];
     }
-    throw new Error('Failed to fetch stickers');
+    
+    if (hasStatus(error) && error.status === 500) {
+      console.error('🚨 500 error from Cosmic API - server issue')
+      // Return empty array instead of throwing to prevent page crash
+      return [];
+    }
+    
+    // For other errors, return empty array to prevent page crash
+    console.error('🚨 Unexpected error, returning empty array to prevent crash')
+    return [];
   }
 }
 
 // Get featured stickers
 export async function getFeaturedStickers(): Promise<Sticker[]> {
   const allStickers = await getStickers();
-  return allStickers.filter(sticker => sticker.metadata.featured_product);
+  return allStickers.filter(sticker => sticker.metadata?.featured_product);
 }
 
 // Get sticker by slug
 export async function getStickerBySlug(slug: string): Promise<Sticker | null> {
   try {
+    console.log('🔍 Fetching sticker by slug:', slug)
+    
     const response = await cosmic.objects
       .findOne({
         type: 'stickers',
@@ -51,11 +88,21 @@ export async function getStickerBySlug(slug: string): Promise<Sticker | null> {
       })
       .depth(1)
     
+    console.log('✅ Sticker found:', response.object?.id)
     return response.object as Sticker;
   } catch (error) {
+    console.error('❌ Error fetching sticker by slug:', error)
+    
     if (hasStatus(error) && error.status === 404) {
+      console.log('ℹ️ Sticker not found with slug:', slug)
       return null;
     }
+    
+    if (hasStatus(error) && error.status === 500) {
+      console.error('🚨 500 error from Cosmic API for slug:', slug)
+      return null;
+    }
+    
     throw new Error('Failed to fetch sticker');
   }
 }
@@ -63,20 +110,32 @@ export async function getStickerBySlug(slug: string): Promise<Sticker | null> {
 // Get all collections
 export async function getCollections(): Promise<Collection[]> {
   try {
+    console.log('🔍 Fetching collections from Cosmic...')
+    
     const response = await cosmic.objects
       .find({ type: 'collections' })
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
     
+    console.log('✅ Collections fetched:', response.objects?.length || 0)
+    
     return (response.objects as Collection[]).sort((a, b) => {
-      const orderA = a.metadata.sort_order || 999;
-      const orderB = b.metadata.sort_order || 999;
+      const orderA = a.metadata?.sort_order || 999;
+      const orderB = b.metadata?.sort_order || 999;
       return orderA - orderB;
     });
   } catch (error) {
+    console.error('❌ Error fetching collections:', error)
+    
     if (hasStatus(error) && error.status === 404) {
       return [];
     }
+    
+    if (hasStatus(error) && error.status === 500) {
+      console.error('🚨 500 error from Cosmic API - collections')
+      return [];
+    }
+    
     throw new Error('Failed to fetch collections');
   }
 }
@@ -84,7 +143,7 @@ export async function getCollections(): Promise<Collection[]> {
 // Get featured collections
 export async function getFeaturedCollections(): Promise<Collection[]> {
   const allCollections = await getCollections();
-  return allCollections.filter(collection => collection.metadata.featured_collection);
+  return allCollections.filter(collection => collection.metadata?.featured_collection);
 }
 
 // Get collection by slug
@@ -109,6 +168,8 @@ export async function getCollectionBySlug(slug: string): Promise<Collection | nu
 // Get stickers by collection
 export async function getStickersByCollection(collectionId: string): Promise<Sticker[]> {
   try {
+    console.log('🔍 Fetching stickers for collection:', collectionId)
+    
     const response = await cosmic.objects
       .find({ 
         type: 'stickers',
@@ -117,11 +178,21 @@ export async function getStickersByCollection(collectionId: string): Promise<Sti
       .props(['id', 'title', 'slug', 'metadata'])
       .depth(1)
     
+    console.log('✅ Collection stickers fetched:', response.objects?.length || 0)
+    
     return response.objects as Sticker[];
   } catch (error) {
+    console.error('❌ Error fetching stickers by collection:', error)
+    
     if (hasStatus(error) && error.status === 404) {
       return [];
     }
+    
+    if (hasStatus(error) && error.status === 500) {
+      console.error('🚨 500 error from Cosmic API - collection stickers')
+      return [];
+    }
+    
     throw new Error('Failed to fetch stickers by collection');
   }
 }
@@ -135,8 +206,8 @@ export async function getReviews(): Promise<Review[]> {
       .depth(1)
     
     return (response.objects as Review[]).sort((a, b) => {
-      const dateA = new Date(a.metadata.review_date).getTime();
-      const dateB = new Date(b.metadata.review_date).getTime();
+      const dateA = new Date(a.metadata?.review_date || '').getTime();
+      const dateB = new Date(b.metadata?.review_date || '').getTime();
       return dateB - dateA; // Newest first
     });
   } catch (error) {
@@ -159,8 +230,8 @@ export async function getReviewsByProduct(productId: string): Promise<Review[]> 
       .depth(1)
     
     return (response.objects as Review[]).sort((a, b) => {
-      const dateA = new Date(a.metadata.review_date).getTime();
-      const dateB = new Date(b.metadata.review_date).getTime();
+      const dateA = new Date(a.metadata?.review_date || '').getTime();
+      const dateB = new Date(b.metadata?.review_date || '').getTime();
       return dateB - dateA; // Newest first
     });
   } catch (error) {
@@ -181,7 +252,7 @@ export async function getRecentReviews(limit: number = 3): Promise<Review[]> {
 export async function searchStickersByTag(tag: string): Promise<Sticker[]> {
   const allStickers = await getStickers();
   return allStickers.filter(sticker => 
-    sticker.metadata.tags?.toLowerCase().includes(tag.toLowerCase())
+    sticker.metadata?.tags?.toLowerCase().includes(tag.toLowerCase())
   );
 }
 
