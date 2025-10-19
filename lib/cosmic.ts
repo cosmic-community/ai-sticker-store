@@ -207,7 +207,7 @@ export async function createSticker(data: CreateStickerRequest, imageFileName: s
         name: data.name,
         description: data.description,
         ai_prompt: data.prompt,
-        product_images: imageFileName, // Changed: Using just the filename
+        product_images: [imageFileName], // Changed: Using array with filename for files metafield
         price: data.price,
         size_options: [
           {
